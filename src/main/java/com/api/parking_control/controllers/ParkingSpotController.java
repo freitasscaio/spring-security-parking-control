@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,11 @@ public class ParkingSpotController {
 	@Autowired
 	ParkingSpotService parkingSpotService;
 
+	public ParkingSpotController(ParkingSpotService parkingSpotService) {
+		this.parkingSpotService = parkingSpotService;
+	}
+
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping
 	public ResponseEntity<Object> saveParkingSpot(@RequestBody @Valid ParkingSpotDTO parkingSpotDTO) {
 		if (parkingSpotService.existsByLicensePlateCar(parkingSpotDTO.getLicensePlateCar())) {
@@ -48,12 +54,14 @@ public class ParkingSpotController {
 		parkingSpotModel.setRegistrationDate(LocalDateTime.now(ZoneId.of("UTC")));
 		return ResponseEntity.status(HttpStatus.CREATED).body(parkingSpotService.save(parkingSpotModel));
 	}
-	
+
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
 	@GetMapping
 	public ResponseEntity<List<ParkingSpotModel>> getAllParkingSpots(){
 		return ResponseEntity.status(HttpStatus.OK).body(parkingSpotService.findAll());
 	}
-	
+
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Object> getOneParkingSpot(@PathVariable UUID id){
 		Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
@@ -62,7 +70,8 @@ public class ParkingSpotController {
 		}
 		return ResponseEntity.status(HttpStatus.OK).body(parkingSpotModelOptional.get());
 	}
-	
+
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deleteParkingSpot (@PathVariable UUID id){
 		Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);
@@ -72,7 +81,8 @@ public class ParkingSpotController {
 		parkingSpotService.delete(parkingSpotModelOptional.get());
 		return ResponseEntity.status(HttpStatus.OK).body("Parking Spot deleted sucesssfully.");
 	}
-	
+
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PutMapping("/{id}")
 	public ResponseEntity<Object> updateParkingSpot (@PathVariable UUID id, @RequestBody @Valid ParkingSpotDTO parkingSpotDTO){
 		Optional<ParkingSpotModel> parkingSpotModelOptional = parkingSpotService.findById(id);

@@ -34,9 +34,9 @@ public class ParkingSpotModel implements Serializable {
 	private LocalDateTime registrationDate;
 	@Column(nullable = false, unique = true, length = 130)
 	private String responsibleName;
-	@Column(nullable = false, unique = true, length = 30)
+	@Column(nullable = false, length = 30)
 	private String apartment;
-	@Column(nullable = false, unique = true, length = 30)
+	@Column(nullable = false, length = 30)
 	private String block;
 	
 	public UUID getId() {
